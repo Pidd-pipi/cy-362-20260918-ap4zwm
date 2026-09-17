@@ -10,3 +10,6 @@ backend/target/
 coverage/
 .pytest_cache/
 *.class
+backend/data/
+*.mv.db
+*.trace.db

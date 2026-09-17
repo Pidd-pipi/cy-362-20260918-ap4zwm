@@ -4,13 +4,16 @@ import { fetchOverview } from "./api/client";
 import { APP_CODE, APP_NAME } from "./constants/app";
 import { REQUEST_MESSAGES } from "./constants/messages";
 import { createFallbackOverview } from "./state/dashboard";
+import { routes } from "./routes";
 import type { OverviewResponse } from "./types";
 import FeatureStrip from "./components/FeatureStrip.vue";
 import MetricGrid from "./components/MetricGrid.vue";
 import OperationsTable from "./components/OperationsTable.vue";
+import ScheduleBoard from "./components/schedule/ScheduleBoard.vue";
 
 const overview = ref<OverviewResponse>(createFallbackOverview());
 const notice = ref(REQUEST_MESSAGES.overviewFallback);
+const currentPath = ref("/");
 
 function goHealth() {
   window.location.href = REQUEST_MESSAGES.healthPath;
@@ -33,9 +36,21 @@ onMounted(async () => {
         <span class="brand-code">{{ APP_CODE }}</span>
         <h1 class="brand-title">{{ APP_NAME }}</h1>
       </div>
+      <nav class="view-nav" aria-label="视图切换">
+        <button
+          v-for="route in routes"
+          :key="route.path"
+          type="button"
+          class="nav-tab"
+          :class="{ active: currentPath === route.path }"
+          @click="currentPath = route.path"
+        >
+          {{ route.label }}
+        </button>
+      </nav>
       <el-button type="primary" @click="goHealth">API Health</el-button>
     </header>
-    <section class="workspace">
+    <section v-if="currentPath === '/'" class="workspace">
       <div class="lead-grid">
         <article class="hero-panel">
           <span class="pill">{{ notice }}</span>
@@ -49,6 +64,9 @@ onMounted(async () => {
         <h2>运营任务流</h2>
         <OperationsTable :records="overview.records" />
       </section>
+    </section>
+    <section v-else-if="currentPath === '/schedule'" class="workspace">
+      <ScheduleBoard />
     </section>
   </main>
 </template>
